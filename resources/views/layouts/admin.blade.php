@@ -21,19 +21,31 @@
                         'icon' =>'fa-solid fa-gauge',
                         'href' => route('admin.dashboard'),
                         'active' => false,
+                ],
                         
                            
-                        'name' =>'Categorías',
+                 [      'name' =>'Categorías',
                         'icon' =>'fa-solid fa-list',
                         'href' => route('admin.categories.index'),
                         'active' => request()->routeIs('admin.categories.*'),
+
+                       
                             
 
 
                 ],
+
+                [
+                     'name' =>'Productos ',
+                        'icon' =>'fa-solid fa-box',
+                        'href' => route('admin.products.index'),
+                        'active' => request()->routeIs('admin.products.*'),
+                ],
+
+];
        
 
-    ];
+   
 @endphp
 
 

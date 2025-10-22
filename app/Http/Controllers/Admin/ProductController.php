@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\Category;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -13,7 +14,8 @@ class ProductController extends Controller
      */
     public function index()
     {
-        //
+        $products = Product::all();
+        return view('admin.products.index');
     }
 
     /**
@@ -21,7 +23,8 @@ class ProductController extends Controller
      */
     public function create()
     {
-        //
+        $categories = Category::all();
+        return view('admin.products.create', compact('categories'));
     }
 
     /**
@@ -29,23 +32,39 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric',
+            'category_id' => 'required|exists:categories,id',
+        ]);
+        
+        
+
+        $product = Product::create($data);
+       
+
+        session()->flash('swal', [
+            'icon' => 'success',
+            'title' => 'Producto creado',
+            'text' => 'El producto ha sido creado exitosamente.',
+        ]);
+         
+
+
+        return redirect()->route('admin.products.index');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Product $product)
-    {
-        //
-    }
+    
 
     /**
      * Show the form for editing the specified resource.
      */
     public function edit(Product $product)
     {
-        //
+        $categories = Category::all();
+        return view('admin.products.edit', compact('product', 'categories'));
     }
 
     /**
@@ -53,14 +72,48 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
-        //
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric',
+            'category_id' => 'required|exists:categories,id',
+        ]);
+
+        $product->update($data);
+
+        session()->flash('swal', [
+            'icon' => 'success',
+            'title' => 'Producto actualizado',
+            'text' => 'El producto ha sido actualizado exitosamente.',
+        ]);
+
+        return redirect()->route('admin.products.edit', $product);
     }
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(Product $product)
-    {
-        //
+    { 
+        if ($product->inventories()->exists()) {
+            session()->flash('swal', [
+                'icon' => 'error',
+                'title' => 'No se puede eliminar',
+                'text' => 'El producto está asociado a órdenes y no puede ser eliminado.',
+            ]);
+
+            return redirect()->route('admin.products.index');
+        }
+
+
+        $product->delete();
+
+        session()->flash('swal', [
+            'icon' => 'success',
+            'title' => 'Producto eliminado',
+            'text' => 'El producto ha sido eliminado exitosamente.',
+        ]);
+
+        return redirect()->route('admin.products.index');
     }
 }
