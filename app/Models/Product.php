@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Support\Facades\Storage;
 
 class Product extends Model
 {
@@ -17,6 +19,15 @@ class Product extends Model
         'price',
         'category_id',
     ];
+    //accesores y mutadores
+    protected function image(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->images->count() ? Storage::url($this->images->first()->path) : 'https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg'
+        );
+    } 
+
+
 
     //Relación uno a muchos inversa
     public function category()
@@ -29,6 +40,20 @@ class Product extends Model
     {
         return $this->hasMany(Inventory::class);
     }
+
+    //Relacion muchos muchos polimorfica
+    public function purchase_orders()
+    {
+        return $this->morphedByMany(PurchaseOrder::class, 'productable');
+    }
+
+    public function quotes()
+    {
+        return $this->morphedByMany(Quote::class, 'productable');
+    }
+    
+    
+
     //Relación polimórfica
     public function images()
     {

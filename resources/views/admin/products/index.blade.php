@@ -13,6 +13,13 @@
         table th span, table td span {
            font-size: 0.75 !important;
         }
+        .image-preview {
+            width: 5rem;
+            height: 3rem;
+            object-fit: cover;
+            object-position: center;
+            border-radius: 0.375rem; /* rounded */
+        }   
 
     </style>
         

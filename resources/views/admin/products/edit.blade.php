@@ -14,7 +14,22 @@ title="Productos | Inventario"
     ]
     
   ]">
-  <x-wire-card>
+
+    @push('css')
+        <link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" type="text/css" />
+        
+    @endpush
+
+    <div class="mb-4">
+        <form action="{{ route('admin.products.dropzone', $product) }}" class="dropzone" id="my-dropzone" method="POST" >
+            @csrf
+        </form>
+    </div>
+
+
+    <x-wire-card>
+
+
         <form action="{{ route('admin.products.update', $product) }}" method="POST" class="space-y-4">
             @csrf
             @method('PUT')
@@ -59,7 +74,61 @@ title="Productos | Inventario"
 
         </form>
 
-     </x-wire-card>
+    </x-wire-card>
+
+
+
+        
+        @push('js')
+            <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+            <script>
+                    // Note that the name "myDropzone" is the camelized
+                    // id of the form.
+                Dropzone.options.myDropzone = {
+                         // Configuration options go here
+
+                            
+                        
+                        addRemoveLinks: true,
+                        init: function() {
+                                let myDropzone = this;
+                                let images = @json($product->images);
+
+                                images.forEach(function(image) {
+                                    let mockFile = { 
+                                        id: image.id,
+                                        name: image.path.split('/').pop(),
+                                        size: image.size,
+                                    }
+
+                                    myDropzone.displayExistingFile(mockFile, `{{ Storage::url('${image.path}') }}`);
+                                    myDropzone.emit("complete", mockFile);
+                                    myDropzone.files.push(mockFile);
+
+                               });
+                               
+                               this.on("success", function(file, response) {
+                                    file.id = response.id;
+                               });
+
+
+                               this.on("removedfile", function(file) {
+                                    if (file.id) {
+                                        axios.delete(`/admin/image/${file.id}`)
+                                        .then(response => {
+                                            console.log(response);
+                                        })
+                                        .catch(error => {
+                                            console.error(error);
+                                        });
+                                    }
+                               });
+                        }
+                };
+            </script>
+        @endpush
+
+     
 
 
 

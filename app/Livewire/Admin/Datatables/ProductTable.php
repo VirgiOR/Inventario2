@@ -2,8 +2,10 @@
 
 namespace App\Livewire\Admin\Datatables;
 
+use App\Models\Image;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
+use Rappasoft\LaravelLivewireTables\Views\Columns\ImageColumn;
 use App\Models\Product;
 
 use Illuminate\Database\Eloquent\Builder;
@@ -23,6 +25,16 @@ class ProductTable extends DataTableComponent
         return [
             Column::make("Id", "id")
                 ->sortable(),
+            ImageColumn::make("Imagen")
+                ->location(
+                    fn($row) => $row->image
+                )->attributes(
+                    fn($row) => [
+                        /*'class' => 'w-20 h-20 object-cover object-center rounded',*/
+                        'class' => 'image-preview',
+                    ]
+                ),
+        
             Column::make("Nombre", "name")
                 ->searchable()
                 ->sortable(),
@@ -45,7 +57,7 @@ class ProductTable extends DataTableComponent
     public function builder(): Builder
     {
         return Product::query()
-             ->with('category');
+             ->with('category', 'images');
     }
 
     
